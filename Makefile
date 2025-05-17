@@ -22,6 +22,13 @@ part-1b: part-1b.c
 part-1b-run: part-1b
 	./$(OUT_DIR)/part-1b
 
+# Part 2A rules
+part-2a: part-2a.c
+	$(CC) $(CFLAGS) -o $(OUT_DIR)/part-2a part-2a.c tree_common.c tree_by_date.c
+
+part-2a-run: part-2a
+	./$(OUT_DIR)/part-2a
+
 # Clean rule
 clean:
 	rm -rf $(OUT_DIR)
