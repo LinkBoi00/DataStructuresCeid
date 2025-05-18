@@ -36,6 +36,13 @@ part-2b: part-2b.c
 part-2b-run: part-2b
 	./$(OUT_DIR)/part-2b
 
+# Part 2C rules
+part-2c: part-2c.c
+	$(CC) $(CFLAGS) -o $(OUT_DIR)/part-2c part-2c.c hashing.c
+
+part-2c-run: part-2c
+	./$(OUT_DIR)/part-2c
+
 # Clean rule
 clean:
 	rm -rf $(OUT_DIR)
