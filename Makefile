@@ -43,6 +43,13 @@ part-2c: part-2c.c
 part-2c-run: part-2c
 	./$(OUT_DIR)/part-2c
 
+# Part 2 A-B-C (Combined)
+part-2-combined: part-2-combined.c
+	$(CC) $(CFLAGS) -o $(OUT_DIR)/part-2-combined part-2-combined.c tree_common.c tree_by_date.c tree_by_temp.c hashing.c
+
+part-2-combined-run: part-2-combined
+	./$(OUT_DIR)/part-2-combined
+
 # Clean rule
 clean:
 	rm -rf $(OUT_DIR)
