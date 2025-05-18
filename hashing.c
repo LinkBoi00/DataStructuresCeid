@@ -8,7 +8,7 @@ void print_hash_table(HashTable* table);
 void free_hash_table(HashTable* table);
 
 HashList* create_list(void);
-HashNode* create_node(char* date, double average_temp);
+HashNode* create_hash_node(char* date, double average_temp);
 void insert_at_end(HashList* list, char* date, double average_temp);
 void free_list_nodes(HashList* list);
 
@@ -160,10 +160,10 @@ HashList* create_list(void) {
     return list;
 }
 
-HashNode* create_node(char* date, double average_temp) {
+HashNode* create_hash_node(char* date, double average_temp) {
     HashNode* node = (HashNode*)malloc(sizeof(HashNode));
     if (node == NULL) {
-        printf("create_node: Memory allocation failed in create_node.\n");
+        printf("create_hash_node: Memory allocation failed in create_hash_node.\n");
         return NULL;
     }
 
@@ -180,7 +180,7 @@ void insert_at_end(HashList* list, char* date, double average_temp) {
     }
 
     // Create new node
-    HashNode* new_node = create_node(date, average_temp);
+    HashNode* new_node = create_hash_node(date, average_temp);
     if (new_node == NULL) {
         printf("insert_at_end: Failed to create new node\n");
         return;

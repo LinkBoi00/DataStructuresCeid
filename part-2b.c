@@ -8,7 +8,7 @@
 int get_tree_by_temp_choice();
 void display_tree_by_temp_menu(TreeNode* root);
 int get_user_input();
-void clear_stdin();
+void clear_stdin(void);
 
 TreeNode* build_tree_from_file(char* filename);
 

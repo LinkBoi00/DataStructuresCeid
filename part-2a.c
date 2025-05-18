@@ -5,10 +5,10 @@
 
 #include "include/tree_by_date.h"
 
-int get_tree_by_date_choice();
+int get_tree_by_date_choice(void);
 void display_tree_by_date_menu(TreeNode* root);
-int get_user_input();
-void clear_stdin();
+int get_user_input(void);
+void clear_stdin(void);
 
 TreeNode* build_tree_from_file(char* filename);
 
@@ -23,7 +23,7 @@ int main(void) {
 }
 
 // Menu functions
-int get_tree_by_date_choice() {
+int get_tree_by_date_choice(void) {
     printf("\n");
     printf("-------------------------- ΜΕΝΟΥ ΔΔΑ (ΗΜΕΡΑ) --------------------------\n");
     printf("1. Απεικόνιση του ΔΔΑ με ενδο-διατεταγμένη διάσχιση\n");
