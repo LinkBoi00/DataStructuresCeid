@@ -166,31 +166,25 @@ MeasurementsArray doQuickSort(MeasurementsArray originalArray) {
 }
 
 void quickSort(Measurement* arr, int low, int high) {
-    if (low < high) {
-        // pi is the partitioning index
-        int pi = partition(arr, low, high);
+    if (low >= high) return;
 
-        // Sort elements before and after partition
-        quickSort(arr, low, pi - 1);
-        quickSort(arr, pi + 1, high);
-    }
-}
+    int pivot = low;
+    int i = low;
+    int j = high;
 
-int partition(Measurement data[], int low, int high) {
-    float pivot = data[high].value;  // Use the last element as pivot
-    int i = low - 1;
+    while (i < j) {
+        while (arr[i].value <= arr[pivot].value && i < high) { i++; }
+        while (arr[j].value > arr[pivot].value) { j--; }
 
-    for (int j = low; j <= high - 1; j++) {
-        // Check if the current element is smaller than the pivot
-        if (data[j].value < pivot) {
-            i++;
-            swap(&data[i], &data[j]);
+        if (i < j) {
+            swap(&arr[i], &arr[j]);
         }
     }
 
-    // Swap pivot to the correct position
-    swap(&data[i + 1], &data[high]);
-    return (i + 1);
+    swap(&arr[pivot], &arr[j]);
+
+    quickSort(arr, low, j - 1);
+    quickSort(arr, j + 1, high);
 }
 
 void swap(Measurement* a, Measurement* b) {
