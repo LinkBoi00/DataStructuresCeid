@@ -9,7 +9,7 @@
 
 typedef struct {
     char timestamp[MAX_TIMESTAMP_LEN];
-    int64_t time_epoch;                     // Custom epoch offset applied to make values smaller
+    int64_t time_epoch;                     // with custom epoch offset applied to make values smaller
     float value;
 } Measurement;
 
