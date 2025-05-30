@@ -8,8 +8,10 @@ endif
 # Change encoding to UTF-8 in Windows
 ifeq ($(OS),Windows_NT)
     RUN_PREFIX = powershell -Command "[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; &
+	RUN_SUFFIX = "
 else
     RUN_PREFIX =
+	RUN_SUFFIX =
 endif
 
 # Build both executables (default target)
