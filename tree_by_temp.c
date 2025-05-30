@@ -4,7 +4,7 @@ void find_min_temp(TreeNode* root, double* min_temp);
 void find_max_temp(TreeNode* root, double* max_temp);
 void inorder_with_temp(TreeNode* node, double temp);
 
-// Node insertion (by temp) functions
+// Node insertion (by temp) functions with AVL balancing
 TreeNode* insert_by_temp(TreeNode* root, char* date, double temp) {
     if (root == NULL) {
         return create_node(date, temp);
@@ -18,6 +18,29 @@ TreeNode* insert_by_temp(TreeNode* root, char* date, double temp) {
         // If temp >= root->averageTemp: go to left child
         root->rightNode = insert_by_temp(root->rightNode, date, temp);
     }
+
+    // Update AVL height
+    update_height(root);
+
+    // Get AVL balance factor
+    int balance = get_balance(root);
+
+    // Perform rotations if unbalanced
+    if (balance > 1 && temp < root->leftNode->averageTemp) {
+        return rotate_right(root);
+    }
+    if (balance < -1 && temp > root->rightNode->averageTemp) {
+        return rotate_left(root);
+    }
+    if (balance > 1 && temp > root->leftNode->averageTemp) {
+        root->leftNode = rotate_left(root->leftNode);
+        return rotate_right(root);
+    }
+    if (balance < -1 && temp < root->rightNode->averageTemp) {
+        root->rightNode = rotate_right(root->rightNode);
+        return rotate_left(root);
+    }
+
 
     return root;
 }
@@ -76,12 +99,12 @@ void find_max_temp(TreeNode* root, double* max_temp) {
         current = current->rightNode;
     }
 
-    // Update max averarge temperature
+    // Update max average temperature
     *max_temp = current->averageTemp;
 }
 
 // Function that does an in-order traversal but only prints
-// the nodes that have a specific max temp
+// the nodes that have a specific temp
 void inorder_with_temp(TreeNode* node, double temp) {
     if (node == NULL) {
         return;

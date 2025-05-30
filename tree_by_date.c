@@ -3,7 +3,7 @@
 TreeNode* _binarySearch(TreeNode* root, char* date);
 TreeNode* _delete_node(TreeNode* root, char* date);
 
-// Node insertion (by date) functions
+// Node insertion (by date) functions with AVL balancing
 TreeNode* insert_by_date(TreeNode* root, char* date, double temp) {
     if (root == NULL) {
         return create_node(date, temp);
@@ -17,8 +17,33 @@ TreeNode* insert_by_date(TreeNode* root, char* date, double temp) {
     } else if (cmp > 0) {
         // If date > root->date: go to the right child
         root->rightNode = insert_by_date(root->rightNode, date, temp);
+    } else {
+        // If data = root->data: ignore duplicates
+        return root;
     }
-    
+
+    // Update AVL height
+    update_height(root);
+
+    // Get AVL balance factor
+    int balance = get_balance(root);
+
+    // Perform AVL rotations if unbalanced
+    if (balance > 1 && strcmp(date, root->leftNode->date) < 0) {
+        return rotate_right(root);
+    }
+    if (balance < -1 && strcmp(date, root->rightNode->date) > 0) {
+        return rotate_left(root);
+    }
+    if (balance > 1 && strcmp(date, root->leftNode->date) > 0) {
+        root->leftNode = rotate_left(root->leftNode);
+        return rotate_right(root);
+    }
+    if (balance < -1 && strcmp(date, root->rightNode->date) < 0) {
+        root->rightNode = rotate_right(root->rightNode);
+        return rotate_left(root);
+    }
+
     return root;
 }
 
@@ -74,13 +99,11 @@ void edit_temperature_by_date(TreeNode* root) {
 
 // Node deletion function
 TreeNode* delete_by_date(TreeNode* root) {
-    TreeNode* node;
     char date[MAX_DATE_LEN] = {0};
 
     scanf("%19s", date);
 
-    node = _delete_node(root, date);
-    return node;
+    return _delete_node(root, date);
 }
 
 TreeNode* _delete_node(TreeNode* root, char* date) {
@@ -127,5 +150,27 @@ TreeNode* _delete_node(TreeNode* root, char* date) {
         }
     }
     
+    // Update AVL height
+    update_height(root);
+
+    // Get AVL balance factor
+    int balance = get_balance(root);
+
+    // Perform rotations if unbalanced
+    if (balance > 1 && get_balance(root->leftNode) >= 0) {
+        return rotate_right(root);
+    }
+    if (balance > 1 && get_balance(root->leftNode) < 0) {
+        root->leftNode = rotate_left(root->leftNode);
+        return rotate_right(root);
+    }
+    if (balance < -1 && get_balance(root->rightNode) <= 0) {
+        return rotate_left(root);
+    }
+    if (balance < -1 && get_balance(root->rightNode) > 0) {
+        root->rightNode = rotate_right(root->rightNode);
+        return rotate_left(root);
+    }
+
     return root;
 }
