@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <stdint.h>
 #include <math.h>
 
 #define MAX_TIMESTAMP_LEN 20                // 19 bytes for the visible timestamp data plus one for \0
