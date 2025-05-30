@@ -30,10 +30,13 @@ int64_t get_user_input(void);
 void clear_stdin(void);
 
 int BIS(MeasurementsArray arr, int left, int right, int64_t target_epoch);
+int BIS_star(MeasurementsArray arr, int left, int right, int64_t target_epoch);
 int linear_search(MeasurementsArray arr, int left, int right, int64_t target_epoch);
+void print_searching_time(clock_t start, clock_t end);
 
 int main(void) {
     MeasurementsArray array = { NULL, 0 };
+    clock_t start, end;
 
     read_from_file(&array, "data/tempm.txt");
     //print_measurements(array);
@@ -42,12 +45,28 @@ int main(void) {
     mergeSort(array.data, 0, array.count - 1);
     //print_measurements(array);
 
+    // Get the timestamp from the user (and convert it to epoch)
+    int64_t target_epoch = get_user_input();
+
     // Do BIS and print the results
-    int result_idx = BIS(array, 0, array.count - 1, get_user_input());
-    if (result_idx == -1) 
-        printf("Measurement data for the specified timestamp does not exist.\n");
-    else 
-        printf("Found measurement data for timestamp %s: %.2f\n", array.data[result_idx].timestamp, array.data[result_idx].value);
+    printf("Running search with BIS\n");
+    start = clock();
+    int result_bis = BIS(array, 0, array.count - 1, target_epoch);
+    (result_bis == -1) ?
+        printf("Measurement data for the specified timestamp does not exist.\n") :
+        printf("Found measurement data for timestamp %s: %.2f\n", array.data[result_bis].timestamp, array.data[result_bis].value);
+    end = clock();
+    print_searching_time(start, end);
+
+    // Do BIS_star and print the results
+    printf("Running search with BIS*\n");
+    start = clock();
+    int result_bis_star = BIS_star(array, 0, array.count - 1, target_epoch);
+    (result_bis_star == -1) ?
+        printf("Measurement data for the specified timestamp does not exist.\n") :
+        printf("Found measurement data for timestamp %s: %.2f\n", array.data[result_bis_star].timestamp, array.data[result_bis_star].value);
+    end = clock();
+    print_searching_time(start, end);
 
     return 0;
 }
@@ -117,6 +136,70 @@ int BIS(MeasurementsArray arr, int left, int right, int64_t target_epoch) {
     return -1;
 }
 
+int BIS_star(MeasurementsArray arr, int left, int right, int64_t target_epoch) {
+    // Check if the target date is within array bounds
+    if (target_epoch > arr.data[right].time_epoch || target_epoch < arr.data[left].time_epoch)
+        return -1;
+
+    // Division by zero check
+    if (arr.data[right].time_epoch == arr.data[left].time_epoch)
+        return linear_search(arr, left, right, target_epoch);
+
+    // Initial interpolation step
+    int size = right - left;
+    int next = (int)((size * (target_epoch - arr.data[left].time_epoch)) /
+                (arr.data[right].time_epoch - arr.data[left].time_epoch)) + left;
+
+    // Interpolation search
+    while (target_epoch != arr.data[next].time_epoch) {
+        int i = 1;
+        size = right - left;
+        
+        // If the field of search is small enough, do linear search for simplicity
+        if (size <= 3) {
+            return linear_search(arr, left, right, target_epoch);
+        }
+
+        int step = (int)sqrt(size);
+        if (target_epoch >= arr.data[next].time_epoch) {
+            while (next + i * step < right && target_epoch > arr.data[next + i * step].time_epoch) {
+                i *= 2;
+            }
+            left = next + (i / 2) * step;
+            right = next + i * step;
+        } else {
+            while (next - i * step > left && target_epoch < arr.data[next - i * step].time_epoch) {
+                i *= 2;
+            }
+            right = next - (i / 2) * step;
+            left = next - i * step;
+        }
+        
+        // Out of bounds checks for left and right
+        if (left < 0) left = 0;
+        if (right > arr.count - 1) right = arr.count - 1;
+
+        // Division by zero check
+        if (arr.data[right].time_epoch == arr.data[left].time_epoch)
+            return linear_search(arr, left, right, target_epoch);
+
+        // Interpolation step
+        next = left + (int)(((right - left) * (target_epoch - arr.data[left].time_epoch)) /
+                    (arr.data[right].time_epoch - arr.data[left].time_epoch));
+        
+        // Out of bounds checks for next
+        if (next < left) next = left;
+        if (next > right) next = right;
+        
+    }
+
+    // Return the index if the timestamp was found
+    if (target_epoch == arr.data[next].time_epoch)
+        return next;
+
+    return -1;
+}
+
 int linear_search(MeasurementsArray arr, int left, int right, int64_t target_epoch) {
     for (int i = left; i < right; ++i) {
         if (arr.data[i].time_epoch == target_epoch) {
@@ -124,6 +207,10 @@ int linear_search(MeasurementsArray arr, int left, int right, int64_t target_epo
         }
     }
     return -1;
+}
+
+void print_searching_time(clock_t start, clock_t end) {
+    printf("Search completed in %.6f seconds.\n", ((double)(end - start)) / CLOCKS_PER_SEC);
 }
 
 // User input functions
