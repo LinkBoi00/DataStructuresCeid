@@ -393,5 +393,5 @@ void read_from_file(MeasurementsArray* arrayPtr, char* filename) {
             add_measurement(arrayPtr, timestamp, value);
         }
     }
-    printf("Read %d measurement entries from file %s\n", arrayPtr->count, filename);
+    printf("\nRead %d measurement entries from file %s\n", arrayPtr->count, filename);
 }
