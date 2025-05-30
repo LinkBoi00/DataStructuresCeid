@@ -2,23 +2,56 @@
 
 TreeNode* _binarySearch(TreeNode* root, char* date);
 TreeNode* _delete_node(TreeNode* root, char* date);
+TreeNode* _find_min_node(TreeNode* node);
 
-// Node insertion (by date) functions
+// Node insertion (by date) functions with AVL balancing
 TreeNode* insert_by_date(TreeNode* root, char* date, double temp) {
+    // Step 1: Perform normal BST insertion
     if (root == NULL) {
         return create_node(date, temp);
     }
     
-    // Insert a node based on its date
     int cmp = strcmp(date, root->date);
     if (cmp < 0) {
-        // If date < root->date: go to the left child
         root->leftNode = insert_by_date(root->leftNode, date, temp);
     } else if (cmp > 0) {
-        // If date > root->date: go to the right child
         root->rightNode = insert_by_date(root->rightNode, date, temp);
+    } else {
+        // Equal dates, don't insert duplicate
+        return root;
     }
     
+    // Step 2: Update height of current node
+    update_height(root);
+    
+    // Step 3: Get the balance factor
+    int balance = get_balance(root);
+    
+    // Step 4: Perform rotations if unbalanced
+    
+    // Left Left Case
+    if (balance > 1 && strcmp(date, root->leftNode->date) < 0) {
+        return rotate_right(root);
+    }
+    
+    // Right Right Case
+    if (balance < -1 && strcmp(date, root->rightNode->date) > 0) {
+        return rotate_left(root);
+    }
+    
+    // Left Right Case
+    if (balance > 1 && strcmp(date, root->leftNode->date) > 0) {
+        root->leftNode = rotate_left(root->leftNode);
+        return rotate_right(root);
+    }
+    
+    // Right Left Case
+    if (balance < -1 && strcmp(date, root->rightNode->date) < 0) {
+        root->rightNode = rotate_right(root->rightNode);
+        return rotate_left(root);
+    }
+    
+    // Return unchanged root
     return root;
 }
 
@@ -72,59 +105,96 @@ void edit_temperature_by_date(TreeNode* root) {
     node->averageTemp = new_temp;
 }
 
-// Node deletion function
+// Helper function to find the minimum node in a subtree
+TreeNode* _find_min_node(TreeNode* node) {
+    TreeNode* current = node;
+    while (current->leftNode != NULL) {
+        current = current->leftNode;
+    }
+    return current;
+}
+
+// Node deletion function with AVL balancing
 TreeNode* delete_by_date(TreeNode* root) {
-    TreeNode* node;
     char date[MAX_DATE_LEN] = {0};
-
     scanf("%19s", date);
-
-    node = _delete_node(root, date);
-    return node;
+    return _delete_node(root, date);
 }
 
 TreeNode* _delete_node(TreeNode* root, char* date) {
+    // Step 1: Perform standard BST delete
     if (root == NULL) {
         printf("Δεν βρέθηκε εγγραφη για τη συγκεκριμενη ΗΜΕΡΑ.\n");
-        return NULL;
+        return root;
     }
 
-    // Travel through the BST in a binarySearch-like pattern
     int cmp = strcmp(date, root->date);
     if (cmp < 0) {
         root->leftNode = _delete_node(root->leftNode, date);
     } else if (cmp > 0) {
         root->rightNode = _delete_node(root->rightNode, date);
     } else {
-        // This node should be deleted
-        if (root->leftNode == NULL && root->rightNode == NULL) {
-            // Case 1: No children
-            free(root);
-            printf("H εγγραφη διαγράφηκε επιτυχώς.\n");
-            return NULL; 
-        } else if (root->leftNode == NULL) {
-            // Case 2: One child (right)
-            TreeNode* temp = root->rightNode;
-            free(root);
-            printf("H εγγραφη διαγράφηκε επιτυχώς.\n");
-            return temp;
-        } else if (root->rightNode == NULL) {
-            // Case 2: One child (left)
-            TreeNode* temp = root->leftNode;
-            free(root);
-            printf("H εγγραφη διαγράφηκε επιτυχώς.\n");
-            return temp;
+        // This is the node to be deleted
+        printf("H εγγραφη διαγράφηκε επιτυχώς.\n");
+        
+        if (root->leftNode == NULL || root->rightNode == NULL) {
+            TreeNode* temp = root->leftNode ? root->leftNode : root->rightNode;
+            
+            if (temp == NULL) {
+                // No child case
+                temp = root;
+                root = NULL;
+            } else {
+                // One child case
+                *root = *temp;
+            }
+            free(temp);
         } else {
-            // Case 3: Two children (Find the inorder successor)
-            TreeNode* successor = root->rightNode;
-            while (successor->leftNode != NULL)
-                successor = successor->leftNode;
-
-            strcpy(root->date, successor->date);
-            root->averageTemp = successor->averageTemp;
-            root->rightNode = _delete_node(root->rightNode, successor->date);
-            printf("H εγγραφη διαγράφηκε επιτυχώς.\n");
+            // Node with two children
+            TreeNode* temp = _find_min_node(root->rightNode);
+            
+            // Copy the inorder successor's data to this node
+            strcpy(root->date, temp->date);
+            root->averageTemp = temp->averageTemp;
+            
+            // Delete the inorder successor
+            root->rightNode = _delete_node(root->rightNode, temp->date);
         }
+    }
+    
+    // If the tree had only one node then return
+    if (root == NULL) {
+        return root;
+    }
+    
+    // Step 2: Update height of current node
+    update_height(root);
+    
+    // Step 3: Get the balance factor
+    int balance = get_balance(root);
+    
+    // Step 4: Perform rotations if unbalanced
+    
+    // Left Left Case
+    if (balance > 1 && get_balance(root->leftNode) >= 0) {
+        return rotate_right(root);
+    }
+    
+    // Left Right Case
+    if (balance > 1 && get_balance(root->leftNode) < 0) {
+        root->leftNode = rotate_left(root->leftNode);
+        return rotate_right(root);
+    }
+    
+    // Right Right Case
+    if (balance < -1 && get_balance(root->rightNode) <= 0) {
+        return rotate_left(root);
+    }
+    
+    // Right Left Case
+    if (balance < -1 && get_balance(root->rightNode) > 0) {
+        root->rightNode = rotate_right(root->rightNode);
+        return rotate_left(root);
     }
     
     return root;
