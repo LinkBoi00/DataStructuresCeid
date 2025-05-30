@@ -1,16 +1,11 @@
 #include "include/hashing.h"
 
-HashTable* create_hash_table(void);
-void insert_hash_table(HashTable* table, char* date, double temp);
-unsigned int hash(char* key);
-HashNode* search_in_hash_table(HashTable* table);
-void print_hash_table(HashTable* table);
-void free_hash_table(HashTable* table);
-
 HashList* create_list(void);
 HashNode* create_hash_node(char* date, double average_temp);
 void insert_at_end(HashList* list, char* date, double average_temp);
 void free_list_nodes(HashList* list);
+
+unsigned int hash(char* key);
 
 // Hash Table functions
 HashTable* create_hash_table(void) {

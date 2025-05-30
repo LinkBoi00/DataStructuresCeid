@@ -4,7 +4,7 @@
 
 #include "include/hashing.h"
 
-HashTable* build_tree_from_file(char* filename);
+HashTable* build_table_from_file(char* filename);
 
 int get_hashing_choice(void);
 void display_hashing_menu(HashTable* table);
@@ -12,7 +12,7 @@ int get_user_input(void);
 void clear_stdin(void);
 
 int main(void) {
-    HashTable* table = build_tree_from_file("data/tempm.txt");
+    HashTable* table = build_table_from_file("data/tempm.txt");
 
     display_hashing_menu(table);
 
@@ -79,9 +79,9 @@ void clear_stdin(void) {
 }
 
 // File reading functions
-HashTable* build_tree_from_file(char* filename) {
+HashTable* build_table_from_file(char* filename) {
     if (filename == NULL) {
-        printf("build_tree_from_file: Filename is invalid.\n");
+        printf("build_table_from_file: Filename is invalid.\n");
         return NULL;
     }
 
